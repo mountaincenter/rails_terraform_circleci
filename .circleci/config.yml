@@ -22,6 +22,8 @@ jobs:
             MYSQL_PASSWORD: password
     working_directory: ~/repo
     steps:
+      - checkout:
+          path: ~/repo
       - restore_cache:
           keys:
             - rails-bundle-v2-{{ checksum "./backend/Gemfile.lock "}}
