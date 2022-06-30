@@ -26,7 +26,7 @@ jobs:
           path: ~/repo
       - restore_cache:
           keys:
-            - rails-bundle-v2-{{ checksum "./backend/Gemfile.lock "}}
+            - rails-bundle-v2-{{ checksum "./backend/Gemfile.lock"}}
             - rails-bundle-v2-
       - run:
           name: bundle install
