@@ -26,13 +26,13 @@ jobs:
           path: ~/terraform_and_rails
       - restore_cache:
           keys:
-            - rails-bundle-v2-{{ checksum "Gemfile.lock "}}
+            - rails-bundle-v2-{{ checksum "backend/Gemfile.lock "}}
             - rails-bundle-v2-
       - run:
           name: bundle install
           command: bundle check --path vendor/bundle || bundle install --deployment
       - save_cache:
-          key: rails-bundle-v2-{{ checksum "Gemfile.lock" }}
+          key: rails-bundle-v2-{{ checksum "backend/Gemfile.lock" }}
           paths:
             - ~/vendor/budnle
       - restore_cache:
