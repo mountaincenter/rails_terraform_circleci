@@ -20,10 +20,8 @@ jobs:
             MYSQL_USER: user
             MYSQL_ROOT_PASSWORD: password
             MYSQL_PASSWORD: password
-    working_directory: ~/terraform_and_rails/rails
+    working_directory: ~/repo
     steps:
-      - checkout:
-          path: ~/terraform_and_rails
       - restore_cache:
           keys:
             - rails-bundle-v2-{{ checksum "./backend/Gemfile.lock "}}
