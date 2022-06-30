@@ -11,14 +11,15 @@ jobs:
           RAILS_ENV: test
           MYSQL_HOST: 127.0.0.1
           MYSQL_PORT: 3306
-          MYSQL_USER: root
-          MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+          MYSQL_USER: user
+          MYSQL_PASSWORD: password
       - image: cimg/mysql:8.0.28
         command: mysqld --defaul-authentication-plugin=mysql_nitive_password
         environment:
-          MYSQL_HOST: 127.0.0.1
-          MYSQL_USER: root
-          MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+            MYSQL_HOST: 127.0.0.1
+            MYSQL_USER: user
+            MYSQL_ROOT_PASSWORD: password
+            MYSQL_PASSWORD: password
     working_directory: ~/terraform_and_rails/rails
     steps:
       - checkout:
