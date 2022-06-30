@@ -38,13 +38,13 @@ jobs:
             - ~/vendor/budnle
       - restore_cache:
           keys:
-            - rails-yarn-{{ checksum "yarn.lock" }}
+            - rails-yarn-{{ checksum "./backend/yarn.lock" }}
             - rails-yarn
       - run:
           name: yarn install
           command: yarn install --cache-folder ~/.cache/yarn
       - save_cache:
-          key: rails-yarn-{{ checksum "yan.lock" }}
+          key: rails-yarn-{{ checksum "./backend/yarn.lock" }}
           paths:
             - ~/.cache/yarn
       - run:
