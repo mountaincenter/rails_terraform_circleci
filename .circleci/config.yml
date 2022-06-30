@@ -30,6 +30,7 @@ jobs:
             - rails-bundle-v2-
       - run:
           name: bundle install
+          working_directroy: backend
           command: bundle check --path vendor/bundle || bundle install --deployment
       - save_cache:
           key: rails-bundle-v2-{{ checksum "./backend/Gemfile.lock" }}
