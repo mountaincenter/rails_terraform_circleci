@@ -53,17 +53,17 @@ workflows:
             - test
           aws-access-key-id: AWS_ACCESS_KEY_ID
           aws-secret-access-key: AWS_SECRET_ACCESS_KEY
-          path: ./rails/
-          dockerfile: container/app/Dockerfile
+          path: ./backend/prd
+          dockerfile: Dockerfile
           repo: '${AWS_RESOURCE_RAILS}'
-          region: AWS_DEFAULT_REGION
+          region: AWS_REGION
           registry-id: AWS_ECR_REGISTRY_ID
           tag: latest
           extra-build-args: '--build-arg RAILS_MASTER_KEY=${RAILS_MASTER_KEY}'
       - aws-ecs/deploy-service-update:
           requires:
             - aws-ecr/build-and-push-image
-          aws-region: AWS_DEFAULT_REGION
+          aws-region: AWS_REGION
           aws-access-key-id: AWS_ACCESS_KEY_ID
           aws-secret-access-key: AWS_SECRET_ACCESS_KEY
           family: APP_NAME
