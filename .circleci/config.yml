@@ -1,5 +1,9 @@
-version: 2
+version: 2.1
 
+orbs:
+  aws-ecr: circleci/aws-ecr@8.1.2
+  aws-ecs: circleci/aws-ecs@2.3.0
+  aws-cli: circleci/aws-cli@3.1.1
 jobs:
   test:
     docker:
@@ -20,6 +24,9 @@ jobs:
           name: "bundle install"
           working_directory: backend
           command: bundle install --path vendor/bundle
+      - run:
+          name: yarn install
+          command: yarn install --cache-folder ~/.cache/yarn
       # MySQLと接続できるまで待ちます
       - run:
           name: "waiting DB start"
@@ -37,7 +44,29 @@ jobs:
 
 
 workflows:
-  version: 2
+  version: 2.1
   workflows:
     jobs:
       - test
+      - aws-ecr/build-and-push-image:
+          requires:
+            - test
+          aws-access-key-id: AWS_ACCESS_KEY_ID
+          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+          path: ./rails/
+          dockerfile: container/app/Dockerfile
+          repo: '${AWS_RESOURCE_RAILS}'
+          region: AWS_DEFAULT_REGION
+          registry-id: AWS_ECR_REGISTRY_ID
+          tag: latest
+          extra-build-args: '--build-arg RAILS_MASTER_KEY=${RAILS_MASTER_KEY}'
+      - aws-ecs/deploy-service-update:
+          requires:
+            - aws-ecr/build-and-push-image
+          aws-region: AWS_DEFAULT_REGION
+          aws-access-key-id: AWS_ACCESS_KEY_ID
+          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+          family: APP_NAME
+          cluster-name: APP_NAME
+          service-name: SERVICE_NAME
+          container-image-name-updates: 'container=rails, tag=latest'
