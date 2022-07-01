@@ -1,101 +1,39 @@
-version: 2.1
-orbs:
-  aws-ecr: circleci/aws-ecr@8.1.2
-  aws-ecs: circleci/aws-ecs@2.3.0
-  aws-cli: circleci/aws-cli@3.1.1
+version: 2
+
 jobs:
   test:
     docker:
-      - image: cimg/ruby:3.1.2-node
+      - image: circleci/ruby:2.7.1-node
         environment:
           RAILS_ENV: test
-          MYSQL_HOST: 127.0.0.1
-          MYSQL_PORT: 3306
-          MYSQL_USER: user
-          MYSQL_PASSWORD: password
-      - image: cimg/mysql:8.0.28
-        command: mysqld --defaul-authentication-plugin=mysql_nitive_password
+          DATABASE_HOST: 127.0.0.1
+      - image: circleci/mysql:5.7
         environment:
-            MYSQL_HOST: 127.0.0.1
-            MYSQL_USER: user
-            MYSQL_ROOT_PASSWORD: password
-            MYSQL_PASSWORD: password
-    working_directory: ~/repo
+          MYSQL_ALLOW_EMPTY_PASSWORD: true
+          MYSQL_ROOT_PASSWORD: ''
+          MYSQL_DATABASE: myapp_test
+    working_directory: ~/myapp
     steps:
-      - checkout:
-          path: ~/repo
-      - restore_cache:
-          keys:
-            - rails-bundle-v2-{{ checksum "./backend/Gemfile.lock"}}
-            - rails-bundle-v2-
+      - checkout
       - run:
-          name: bundle install
-          working_directroy: backend
-          command: bundle config set --local path vendor/bundle || bundle install --deployment
-      - save_cache:
-          key: rails-bundle-v2-{{ checksum "./backend/Gemfile.lock" }}
-          paths:
-            - ~/vendor/budnle
-      - restore_cache:
-          keys:
-            - rails-yarn-{{ checksum "./yarn.lock" }}
-            - rails-yarn
+          name: "bundle install"
+          command: bundle install --path vendor/bundle
+      # MySQLと接続できるまで待ちます
       - run:
-          name: yarn install
-          command: yarn install --cache-folder ~/.cache/yarn
-      - save_cache:
-          key: rails-yarn-{{ checksum "./yarn.lock" }}
-          paths:
-            - ~/.cache/yarn
+          name: "waiting DB start"
+          command: dockerize -wait tcp://127.0.0.1:3306 -timeout 1m
       - run:
-          name: Wait for DB
-          command: dockerize -wait tcp://127.0.0.1:3306 -timeout 3m
-      - run:
-          name: Confiure Database setting
-          command: mv ./config/database.yml.ci ./config/database.yml
-      - run:
-          name: DB create
-          command: bundle exec rake db:create
-      - run:
-          name: Run spec
+          name: "initialize DB"
           command: |
-            mkdir /tmp/test-results
-            TEST_FILES="${circleci test glob "spec/**/*_spec.rb" | \
-              circleci test split --split-by=timings}"
-            bundle exec rspec \
-              --format progress \
-              --out /tmp/test-results/rspec.xml \
-              --format documentation \
-              $TEST_FILES
-      - store_test_results:
-          path: /tmp/test-results
-      - store_artifacts:
-          path: /tmp/test-results
-          destination: test-results
+            bundle exec rake db:create
+            bundle exec rake db:migrate
+      - run:
+          name: RSpec
+          command: bundle exec rspec
+
+
 workflows:
-  version: 2.1
-  test:
+  version: 2
+  workflows:
     jobs:
       - test
-      - aws-ecr/build-and-push-image:
-          requires:
-            - test
-          aws-access-key-id: AWS_ACCESS_KEY_ID
-          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
-          path: ./rails/
-          dockerfile: container/app/Dockerfile
-          repo: '${AWS_RESOURCE_RAILS}'
-          region: AWS_DEFAULT_REGION
-          registry-id: AWS_ECR_REGISTRY_ID
-          tag: latest
-          extra-build-args: '--build-arg RAILS_MASTER_KEY=${RAILS_MASTER_KEY}'
-      - aws-ecs/deploy-service-update:
-          requires:
-            - aws-ecr/build-and-push-image
-          aws-region: AWS_DEFAULT_REGION
-          aws-access-key-id: AWS_ACCESS_KEY_ID
-          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
-          family: APP_NAME
-          cluster-name: APP_NAME
-          service-name: SERVICE_NAME
-          container-image-name-updates: 'container=rails, tag=latest'
