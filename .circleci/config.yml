@@ -26,11 +26,13 @@ jobs:
           command: dockerize -wait tcp://127.0.0.1:3306 -timeout 1m
       - run:
           name: "initialize DB"
+          working_directory: backend
           command: |
             bundle exec rake db:create
             bundle exec rake db:migrate
       - run:
-          name: RSpec
+          name: "RSpec"
+          working_directory: backend
           command: bundle exec rspec
 
 
