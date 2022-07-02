@@ -42,13 +42,12 @@ jobs:
 
 workflows:
   version: 2.1
-  workflowds:
+  workflows:
     jobs:
       - test
-      - build_and_push_image:
+      - aws-ecr/build-and-push-image:
           requires:
             - test
-          aws-ecr/build-and-push-image:
           aws-access-key-id:  AWS_ACCESS_KEY_ID
           aws-cli-version: latest
           aws-secret-access-key: AWS_SECRET_ACCESS_KEY
