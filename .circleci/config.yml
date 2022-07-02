@@ -13,7 +13,7 @@ workflows:
           path: /backend
           region: "ap-northeast-1"
           registry-id: AWS_ID
-          repo: REGISTRY_NAME
+          repo: "tf-app"
           repo-scan-on-push: true
           skip-when-tags-exist: false
           tag: 'latest'
