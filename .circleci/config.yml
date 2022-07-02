@@ -10,7 +10,7 @@ workflows:
           aws-secret-access-key: SECRET_ACCESS_KEY_ENV_VAR_NAME
           context: aws
           create-repo: true
-          dockerfile: ./backend/prd/Dockerfile
+          path: /backend/prd
           region: AWS_REGION
           registry-id: AWS_ID
           repo: REGISTRY_NAME
