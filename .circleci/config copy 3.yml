@@ -1,30 +1,63 @@
 version: '2.1'
 orbs:
-  aws-ecr: circleci/aws-ecr@x.y
+  aws-ecr: circleci/aws-ecr@8.1.2
+  aws-ecs: circleci/aws-ecs@2.3.0
+  aws-cli: circleci/aws-cli@3.1.1
+jobs:
+  test:
+    docker:
+      - image: cimg/ruby:3.1.2-browsers
+        environment:
+          RAILS_ENV: test
+          DATABASE_HOST: 127.0.0.1
+      - image: cimg/mysql:8.0.28
+        command: mysqld --default-authentication-plugin=mysql_native_password
+        environment:
+          MYSQL_ALLOW_EMPTY_PASSWORD: true
+          MYSQL_ROOT_PASSWORD: ''
+          MYSQL_DATABASE: myapp_test
+    working_directory: ~/myapp
+    steps:
+      - checkout
+      - run:
+          name: "bundle install"
+          working_directory: backend
+          command: bundle install --path vendor/bundle
+      - run:
+          name: yarn install
+          command: yarn install --cache-folder ~/.cache/yarn
+      - run:
+          name: "waiting DB start"
+          command: dockerize -wait tcp://127.0.0.1:3306 -timeout 1m
+      - run:
+          name: "initialize DB"
+          working_directory: backend
+          command: |
+            bundle exec rake db:create
+            bundle exec rake db:migrate
+      - run:
+          name: "RSpec"
+          working_directory: backend
+          command: bundle exec rspec
+
 workflows:
-  build_and_push_image:
+  version: 2.1
+  workflows:
     jobs:
+      - test
       - aws-ecr/build-and-push-image:
-          aws-access-key-id: ACCESS_KEY_ID_ENV_VAR_NAME
+          requires:
+            - test
+          aws-access-key-id:  AWS_ACCESS_KEY_ID
           aws-cli-version: latest
-          aws-secret-access-key: SECRET_ACCESS_KEY_ENV_VAR_NAME
-          context: myContext
+          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+          context: aws
           create-repo: true
-          dockerfile: myDockerfile
-          executor: aws-ecr/default
-          extra-build-args: '--compress'
-          new-profile-name: newProfileName
-          no-output-timeout: 20m
-          path: pathToMyDockerfile
-          platform: linux/amd64
-          profile-name: myProfileName
-          public-registry: false
-          push-image: true
-          region: AWS_REGION
-          registry-id: AWS_ECR_REGISTRY_ID
-          repo: myECRRepository
+          path: ./backend
+          region: "${AWS_REGION}"
+          registry-id: AWS_ID
+          repo: "${REGISTRY_NAME}"
           repo-scan-on-push: true
-          role-arn: 'arn:aws:iam::123456789012:role/testing'
           skip-when-tags-exist: false
-          source-profile: sourceProfileName
-          tag: 'latest,myECRRepoTag'
+          tag: 'latest'
+          extra-build-args: '--build-arg RAILS_MASTER_KEY=${RAILS_MASTER_KEY}'
