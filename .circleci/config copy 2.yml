@@ -1,0 +1,72 @@
+version: 2.1
+
+orbs:
+  aws-ecr: circleci/aws-ecr@8.1.2
+  aws-ecs: circleci/aws-ecs@2.3.0
+  aws-cli: circleci/aws-cli@3.1.1
+jobs:
+  test:
+    docker:
+      - image: cimg/ruby:3.1.2-browsers
+        environment:
+          RAILS_ENV: test
+          DATABASE_HOST: 127.0.0.1
+      - image: cimg/mysql:8.0.28
+        command: mysqld --default-authentication-plugin=mysql_native_password
+        environment:
+          MYSQL_ALLOW_EMPTY_PASSWORD: true
+          MYSQL_ROOT_PASSWORD: ''
+          MYSQL_DATABASE: myapp_test
+    working_directory: ~/myapp
+    steps:
+      - checkout
+      - run:
+          name: "bundle install"
+          working_directory: backend
+          command: bundle install --path vendor/bundle
+      - run:
+          name: yarn install
+          command: yarn install --cache-folder ~/.cache/yarn
+      # MySQLと接続できるまで待ちます
+      - run:
+          name: "waiting DB start"
+          command: dockerize -wait tcp://127.0.0.1:3306 -timeout 1m
+      - run:
+          name: "initialize DB"
+          working_directory: backend
+          command: |
+            bundle exec rake db:create
+            bundle exec rake db:migrate
+      - run:
+          name: "RSpec"
+          working_directory: backend
+          command: bundle exec rspec
+
+
+workflows:
+  version: 2.1
+  workflows:
+    jobs:
+      - test
+      - aws-ecr/build-and-push-image:
+          requires:
+            - test
+          aws-access-key-id: AWS_ACCESS_KEY_ID
+          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+          path: ./backend/prd
+          dockerfile: Dockerfile
+          repo: '${AWS_RESOURCE_RAILS}'
+          region: AWS_REGION
+          registry-id: AWS_ECR_REGISTRY_ID
+          tag: latest
+          extra-build-args: '--build-arg RAILS_MASTER_KEY=${RAILS_MASTER_KEY}'
+      - aws-ecs/deploy-service-update:
+          requires:
+            - aws-ecr/build-and-push-image
+          aws-region: AWS_REGION
+          aws-access-key-id: AWS_ACCESS_KEY_ID
+          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+          family: APP_NAME
+          cluster-name: APP_NAME
+          service-name: SERVICE_NAME
+          container-image-name-updates: 'container=rails, tag=latest'
