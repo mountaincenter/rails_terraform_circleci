@@ -10,7 +10,7 @@ workflows:
           aws-secret-access-key: AWS_SECRET_ACCESS_KEY
           context: aws
           create-repo: true
-          path: /backend
+          path: ./backend
           region: "ap-northeast-1"
           registry-id: AWS_ID
           repo: "tf-app"
