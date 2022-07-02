@@ -69,6 +69,6 @@ workflows:
           aws-secret-access-key: AWS_SECRET_ACCESS_KEY
           aws-region: AWS_REGION
           cluster-name: '${REGISTRY_NAME}'
-          container-image-name-updates: 'container=${REGISTRY_NAME},tag=latest'
+          container-image-name-updates: 'container=tf-app,tag=latest'
           family: '${REGISTRY_NAME}'
           service-name: "${REGISTRY_NAME}-service"
