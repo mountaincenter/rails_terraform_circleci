@@ -11,9 +11,9 @@ workflows:
           context: aws
           create-repo: true
           path: ./backend
-          region: "ap-northeast-1"
+          region: "${AWS_REGION}"
           registry-id: AWS_ID
-          repo: "tf-app"
+          repo: "${REGISTRY_NAME}"
           repo-scan-on-push: true
           skip-when-tags-exist: false
           tag: 'latest'
