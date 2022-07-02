@@ -67,6 +67,7 @@ workflows:
           aws-region: AWS_REGION
           cluster-name: '${REGISTRY_NAME}'
           container-image-name-updates: 'container=${REGISTRY_NAME},tag=latest'
-          family: '${REGISTRY_NAME}-service'
+          family: '${REGISTRY_NAME}'
+          service-name: "${REGISTRY_NAME}-service"
           requires:
             - aws-ecr/build-and-push-image
