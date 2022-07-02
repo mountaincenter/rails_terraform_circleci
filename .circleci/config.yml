@@ -1,6 +1,6 @@
 version: '2.1'
 orbs:
-  aws-ecr: circleci/aws-ecr@8.1.0
+  aws-ecr: circleci/aws-ecr@8.1.2
 workflows:
   build_and_push_image:
     jobs:
