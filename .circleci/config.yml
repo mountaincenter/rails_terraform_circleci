@@ -64,7 +64,7 @@ workflows:
       - aws-ecs/deploy-service-update:
           aws-access-key-id:  AWS_ACCESS_KEY_ID
           aws-secret-access-key: AWS_SECRET_ACCESS_KEY
-          aws-region: "${AWS_REGION}"
+          aws-region: AWS_REGION
           cluster-name: '${REGISTRY_NAME}'
           container-image-name-updates: 'container=${REGISTRY_NAME},tag=latest'
           family: '${REGISTRY_NAME}-service'
