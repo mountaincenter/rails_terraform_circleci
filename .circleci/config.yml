@@ -71,7 +71,7 @@ workflows:
           dockerfile: /prd/nginx/Dockerfile
           region: "${AWS_DEFAULT_REGION}"
           registry-id: AWS_ID
-          repo: "ngxin"
+          repo: "nginx"
           repo-scan-on-push: true
           skip-when-tags-exist: false
           tag: "${CIRCLE_SHA1}"
