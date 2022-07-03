@@ -73,4 +73,11 @@ workflows:
           repo: "nginx"
           repo-scan-on-push: true
           skip-when-tags-exist: false
-          tag: "latest"
+          tag: "${CIRCLE_SHA1}"
+      - aws-ecs/deploy-servece-update:
+          requires:
+            - aws-ecr/build-and-push-image:
+          family: "tf-app"
+          cluster-name: "arn:aws:ecs:ap-northeast-1:384657981262:cluster/tf-app"
+          service-name: "tf-app-service"
+          container-image-name-updates: "conteiner=ngxin,tag=${CIRCLE_SHA1}"
