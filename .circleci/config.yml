@@ -55,7 +55,7 @@ workflows:
           create-repo: true
           path: ./backend
           dockerfile: /prd/Dockerfile.prd
-          region: "${AWS_REGION}"
+          region: "${AWS_DEFAULT_REGION}"
           registry-id: AWS_ID
           repo: "${REGISTRY_NAME}"
           repo-scan-on-push: true
