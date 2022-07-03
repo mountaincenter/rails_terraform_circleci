@@ -63,11 +63,8 @@ workflows:
           tag: "${CIRCLE_SHA1}"
           extra-build-args: '--build-arg RAILS_MASTER_KEY=${RAILS_MASTER_KEY}'
       - aws-ecs/deploy-service-update:
+          cluster-name: '${MY_APP_PREFIX}'
+          container-image-name-updates: 'container=${MY_APP_PREFIX},tag=${CIRCLE_SHA1}'
+          family: '${MY_APP_PREFIX}-service'
           requires:
             - aws-ecr/build-and-push-image
-          aws-access-key-id: AWS_ACCESS_KEY_ID
-          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
-          aws-region: AWS_DEFAULT_REGION
-          family: "tf-app"
-          cluster-name: "tf-app"
-          container-image-name-updates: "container=tf-app, tag=${CIECLE_SHA1}"
