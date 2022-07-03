@@ -5,6 +5,6 @@ RUN apt-get update && \
     locale-gen ja_JP.UTF-8
 ENV LANG ja_JP.UTF-8
 ENV LC_TIME C
-COPY backend/prd/nginx/nginx.conf /etc/nginx/nginx.conf
-COPY backend/prd/nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf
+COPY ./prd/nginx/nginx.conf /etc/nginx/nginx.conf
+COPY ./prd/nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf
 CMD /usr/sbin/nginx -g 'daemon off;' -c /etc/nginx/nginx.conf

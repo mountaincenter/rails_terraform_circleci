@@ -52,7 +52,7 @@ workflows:
           context: aws
           create-repo: true
           path: ./backend
-          dockerfile: /prd/Dockerfile.prd
+          dockerfile: /prd/Dockerfile
           region: "${AWS_DEFAULT_REGION}"
           registry-id: AWS_ID
           repo: "${REGISTRY_NAME}"
