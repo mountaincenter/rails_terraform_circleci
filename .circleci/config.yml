@@ -65,6 +65,10 @@ workflows:
       - aws-ecs/deploy-service-update:
           requires:
             - aws-ecr/build-and-push-image
+          aws-access-key-id: AWS_ACCESS_KEY_ID
+          aws-cli-version: latest
+          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+          aws-region: AWS_DEFAULT_REGION
           family: "tf-app"
           cluster-name: "tf-app"
           container-image-name-updates: "container=tf-app, tag=${CIECLE_SHA1}"
