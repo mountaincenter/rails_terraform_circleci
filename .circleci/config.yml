@@ -40,8 +40,7 @@ jobs:
           command: bundle exec rspec
 
 workflows:
-  version: 2.1
-  workflows:
+  rails-deploy:
     jobs:
       - test
       - aws-ecr/build-and-push-image:
@@ -60,6 +59,9 @@ workflows:
           skip-when-tags-exist: false
           tag: "latest"
           extra-build-args: '--build-arg RAILS_MASTER_KEY=${RAILS_MASTER_KEY}'
+  nginx-deploy:
+    jobs:
+      - test
       - aws-ecr/build-and-push-image:
           requires:
             - test
