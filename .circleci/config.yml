@@ -68,7 +68,7 @@ workflows:
           context: aws
           create-repo: true
           path: ./backend
-          dockerfile: /prd/nginx/Dockerfile.prd
+          dockerfile: /prd/nginx/Dockerfile
           region: "${AWS_DEFAULT_REGION}"
           registry-id: AWS_ID
           repo: "ngxin"
