@@ -60,5 +60,5 @@ workflows:
           repo: "${REGISTRY_NAME}"
           repo-scan-on-push: true
           skip-when-tags-exist: false
-          tag: "latest"
+          tag: "${CIRCLE_SHA1}"
           extra-build-args: '--build-arg RAILS_MASTER_KEY=${RAILS_MASTER_KEY}'
