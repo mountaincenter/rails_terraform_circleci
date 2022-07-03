@@ -58,7 +58,7 @@ workflows:
           repo: "${REGISTRY_NAME}"
           repo-scan-on-push: true
           skip-when-tags-exist: false
-          tag: "${CIRCLE_SHA1}"
+          tag: "latest"
           extra-build-args: '--build-arg RAILS_MASTER_KEY=${RAILS_MASTER_KEY}'
       - aws-ecr/build-and-push-image:
           requires:
@@ -74,4 +74,4 @@ workflows:
           repo: "nginx"
           repo-scan-on-push: true
           skip-when-tags-exist: false
-          tag: "${CIRCLE_SHA1}"
+          tag: "latest"
